@@ -8,11 +8,14 @@
     "start": "next start"
   },
   "dependencies": {
+    "mongoose": "^8.15.1",
     "next": "15.3.2"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^19"
+    "@types/react": "^19",
+    "eslint": "^9.27.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5"
   }
 }
