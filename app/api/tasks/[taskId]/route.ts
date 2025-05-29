@@ -63,3 +63,40 @@ export async function DELETE(
        }, { status: 500 })
    }
 }
+
+// Updating Task
+export async function PATCH(request: NextRequest, { params}: { params: Promise<{ taskId: string }>}){
+    try {
+        const { taskId } = await params
+
+        const data = await request.json()
+
+        const updateTask = await Task.findByIdAndUpdate(taskId, { $set: data }, {new: true, runValidators: true})
+
+        if (!updateTask){
+            return NextResponse.json({
+                success: false,
+                message: "Task not found"
+            }, {status: 404})
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: "Task updated successfully",
+            data: {
+                title: updateTask.title,
+                description: updateTask.description,
+                status: updateTask.status,
+                priority: updateTask.priority,
+                dueDate: updateTask.dueDate,
+                tags: updateTask.tags
+            }
+        })
+    } catch (e) {
+        console.error("Error updating Task: ", e)
+        return NextResponse.json({
+            success: false,
+            error: "Internal Server Error"
+        }, { status: 500})
+    }
+}
