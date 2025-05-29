@@ -33,7 +33,7 @@ export async function GET(
         });
     } catch (e) {
         console.error("Error fetching tasks: ", e)
-        NextResponse.json({
+        return NextResponse.json({
             success: false,
             error: "Internal Server Error"
         }, {status: 500})
