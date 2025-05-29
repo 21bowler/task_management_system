@@ -57,7 +57,7 @@ export async function DELETE(
    } catch (e) {
        console.error("Error deleting Task: ", e)
 
-       NextResponse.json({
+       return NextResponse.json({
            success: false,
            error: "Internal Server Error"
        }, { status: 500 })
