@@ -44,7 +44,22 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ taskId: string }> },
 ) {
-    const {taskId} = await params;
-    // e.g. Delete user with ID `id` in DB
-    return new Response(null, { status: 204 });
+   try {
+       const { taskId } = await params;
+
+       await Task.findByIdAndDelete(taskId)
+
+       // send response
+       return NextResponse.json({
+           success: true,
+           message: "Task deleted successfully."
+       })
+   } catch (e) {
+       console.error("Error deleting Task: ", e)
+
+       NextResponse.json({
+           success: false,
+           error: "Internal Server Error"
+       }, { status: 500 })
+   }
 }
