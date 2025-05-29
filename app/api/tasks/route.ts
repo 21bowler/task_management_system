@@ -39,6 +39,15 @@ export async function POST(request: NextRequest) {
     // get data from the form
     const body = await request.json();
 
+    // Check for an existing task with the same title before creating
+    const existingTask = await Task.findOne({ title: body.title });
+    if (existingTask) {
+      return NextResponse.json({
+        success: false,
+        message: "A task with this title already exists"
+      }, { status: 409 }) // 409 Conflict is appropriate for duplicate resources
+    }
+
     const newTask = await Task.create(body);
 
     return NextResponse.json({
