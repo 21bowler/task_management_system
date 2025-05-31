@@ -8,10 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "mongoose": "^8.15.1",
-    "next": "15.3.2"
+    "next": "15.3.2",
+    "next-auth": "^4.24.11"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "eslint": "^9.27.0",
