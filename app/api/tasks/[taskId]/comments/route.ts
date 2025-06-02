@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Task from '@/models/task.model';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // route --> /api/tasks/:taskId/comments
@@ -26,11 +26,11 @@ export async function POST(
     const { taskId } = await params;
     const { content } = await request.json();
 
-    if (!content || content.trim()) {
+    if (!content || content.trim() === '') {
       return NextResponse.json(
         {
           success: false,
-          message: 'Comment content is required',
+          message: 'Comment content is required and cannot be empty.',
         },
         { status: 400 },
       );
@@ -51,7 +51,7 @@ export async function POST(
     // Add new comment
     const newComment = {
       content,
-      createdBy: session?.user.id,
+      createdBy: session.user.id,
       createdAt: new Date(),
     };
 
@@ -61,7 +61,7 @@ export async function POST(
     //log the activity
     task.activityLog.push({
       action: 'commented',
-      performedBy: session?.user.id,
+      performedBy: session.user.id,
       timestamp: new Date(),
       details: `Commented on task: ${task.title}`,
     });
