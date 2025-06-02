@@ -1,13 +1,13 @@
-import NextAuth from 'next-auth';
+import NextAuth, { AuthOptions, SessionStrategy } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/user.model';
 import bcrypt from 'bcrypt';
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
@@ -41,7 +41,7 @@ export const authOptions = {
         }
 
         return {
-          id: user._id.toStrong(),
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
         };
@@ -49,6 +49,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
+    // This callback is invoked when a JWT is created (e.g sign-in)
     async jwt({ token, user }) {
       // Add user id to the token when user signs in
       if (user) {
@@ -56,8 +57,9 @@ export const authOptions = {
       }
       return token;
     },
+    // This callback is invoked when a session is accessed e.g.(getServerSession or useSession)
     async session({ session, token }) {
-      // Add user id to the session when user signs in
+      // Add user id to the session when the user signs in
       if (session.user) {
         session.user.id = token.id;
       }
@@ -65,12 +67,10 @@ export const authOptions = {
     },
   },
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as SessionStrategy,
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/auth/signin',
-  },
+  secret: process.env.AUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development', // enables errors to only be thrown on dev mode
 };
 
 const handler = NextAuth(authOptions);
