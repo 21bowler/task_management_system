@@ -14,6 +14,7 @@ export interface ITask extends Document {
   comments?: IComment[];
   activityLog?: IActivityLog[];
   createdBy: mongoose.Types.ObjectId | IUser;
+  category?: string;
   completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -141,6 +142,11 @@ const TaskSchema = new Schema<ITask>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'User who created the task is required.'],
+    },
+    category: {
+      type: String,
+      trim: true,
+      default: 'Uncategorized',
     },
   },
   {
