@@ -76,6 +76,19 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
+    // protected the route from unauthenticated users
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Not Authenticated! Please login.',
+        },
+        { status: 401 },
+      );
+    }
+
     // get data from the form
     const body = await request.json();
 
@@ -91,7 +104,18 @@ export async function POST(request: NextRequest) {
       ); // 409 Conflict is appropriate for duplicate resources
     }
 
-    const newTask = await Task.create(body);
+    const newTask = await Task.create({
+      ...body,
+      createdBy: session.user.id,
+      activityLog: [
+        {
+          action: 'created',
+          performedBy: session.user.id,
+          timestamp: new Date(),
+          details: 'Task created',
+        },
+      ],
+    });
 
     return NextResponse.json({
       success: true,
