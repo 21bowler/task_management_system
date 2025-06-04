@@ -55,7 +55,7 @@ export async function POST(
       (id: string) => !currentSharedWith.includes(id.toString()),
     );
 
-    if (uniqueUserIds.length === 0) {
+    if (uniqueUserIds.length > 0) {
       task.sharedWith = [...(task.sharedWith || []), ...uniqueUserIds];
 
       //Log User activity
@@ -78,5 +78,18 @@ export async function POST(
     });
   } catch (e) {
     console.error('Error sharing task: ', e);
+
+    // Type safe error approach
+    const errorMessage =
+      e instanceof Error ? e.message : 'Unknown error occurred';
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal Server Error',
+        message: errorMessage,
+      },
+      { status: 500 },
+    );
   }
 }
