@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Task from '@/models/task.model';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Gets a single task by its ID
 export async function GET(
@@ -106,9 +108,45 @@ export async function PATCH(
   { params }: { params: Promise<{ taskId: string }> },
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Not Authenticated! Please login.',
+        },
+        { status: 401 },
+      );
+    }
+
     const { taskId } = await params;
 
     const data = await request.json();
+
+    const originalTask = await Task.findById(taskId);
+
+    if (!originalTask) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Task not found',
+        },
+        { status: 404 },
+      );
+    }
+
+    // If the category is changing, add an activity log entry
+    if (data.catgeory && data.category !== originalTask.catgeory) {
+      originalTask.activityLog.push({
+        action: 'updated',
+        performedBy: session.user.id,
+        timestamp: new Date(),
+        details: `Task category updated from ${originalTask.category || 'Uncategorized'} to ${data.category}`,
+      });
+
+      // add activity log to the updated data
+      data.activityLog = originalTask.activityLog;
+    }
 
     const updateTask = await Task.findByIdAndUpdate(
       taskId,
